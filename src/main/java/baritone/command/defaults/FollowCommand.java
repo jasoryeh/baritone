@@ -35,6 +35,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 
 public class FollowCommand extends Command {
@@ -51,12 +52,15 @@ public class FollowCommand extends Command {
         List<Entity> entities = new ArrayList<>();
         List<EntityType> classes = new ArrayList<>();
         if (args.hasExactlyOne()) {
+            // follow multiple
             baritone.getFollowProcess().follow((group = args.getEnum(FollowGroup.class)).filter);
         } else {
+            // follow singular entity
             args.requireMin(2);
             group = null;
-            list = args.getEnum(FollowList.class);
+            list = args.getEnum(FollowList.class); // resolve what type to follow
             while (args.hasAny()) {
+                // resolve the remaining arguments (should be entity types)
                 Object gotten = args.getDatatypeFor(list.datatype);
                 if (gotten instanceof EntityType) {
                     //noinspection unchecked
@@ -135,12 +139,15 @@ public class FollowCommand extends Command {
         );
     }
 
+    /**
+     * For follow multiple
+     */
     @KeepName
     private enum FollowGroup {
         ENTITIES(LivingEntity.class::isInstance),
-        PLAYERS(Player.class::isInstance); /* ,
-        FRIENDLY(entity -> entity.getAttackTarget() != HELPER.mc.player),
-        HOSTILE(FRIENDLY.filter.negate()); */
+        PLAYERS(Player.class::isInstance),
+        FRIENDLY(entity -> entity instanceof Enemy),
+        HOSTILE(FRIENDLY.filter.negate());
         final Predicate<Entity> filter;
 
         FollowGroup(Predicate<Entity> filter) {
@@ -148,6 +155,9 @@ public class FollowCommand extends Command {
         }
     }
 
+    /**
+     * For follow singular
+     */
     @KeepName
     private enum FollowList {
         ENTITY(EntityClassById.INSTANCE),
