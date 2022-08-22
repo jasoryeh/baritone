@@ -15,12 +15,13 @@
  * along with Baritone.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package baritone.behavior;
+package baritone.process;
 
 import baritone.Baritone;
-import baritone.api.behavior.IEatBehavior;
-import baritone.api.event.events.TickEvent;
-import baritone.api.utils.Helper;
+import baritone.api.process.IEatProcess;
+import baritone.api.process.PathingCommand;
+import baritone.api.process.PathingCommandType;
+import baritone.utils.BaritoneProcessHelper;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.food.FoodConstants;
@@ -29,31 +30,65 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
-public class EatBehavior extends Behavior implements IEatBehavior, Helper {
-
+public class EatProcess extends BaritoneProcessHelper implements IEatProcess {
+    int lastSlot = 0;
     boolean JUST_ATE = false;
 
-    public EatBehavior(Baritone baritone) {
+    public EatProcess(Baritone baritone) {
         super(baritone);
     }
 
-    private void executeBehavior() {
+    @Override
+    public boolean isActive() {
+        if (!this.inGame()) {
+            return false;
+        } else {
+            boolean isHungry = ctx.player().getFoodData().needsFood();
+            if (this.JUST_ATE && !isHungry) {
+                this.JUST_ATE = false;
+                mc.options.keyUse.setDown(false);
+                ctx.player().getInventory().selected = lastSlot;
+            }
+            return Baritone.settings().autoEat.value && isHungry;
+        }
+    }
+
+    @Override
+    public PathingCommand onTick(boolean calcFailed, boolean isSafeToCancel) {
         LocalPlayer player = ctx.player();
         if (player.getFoodData().needsFood()) {
             Inventory inventory = player.getInventory();
             int foodSlot = this.findFoodSlot();
-            if (foodSlot == -1) {
-                //logDebug("unable to find a good food item.");
-                return;
+            if (foodSlot != -1) {
+                this.lastSlot = player.getInventory().selected;
+                player.getInventory().selected = foodSlot;
+                mc.options.keyUse.setDown(true);
+                this.JUST_ATE = true;
+                return new PathingCommand(null, PathingCommandType.REQUEST_PAUSE);
             }
-            ItemStack foodStack = inventory.getItem(foodSlot);
-            player.getInventory().selected = foodSlot;
-            mc.options.keyUse.setDown(true);
-            this.JUST_ATE = true;
-        } else if (this.JUST_ATE) {
+            //logDebug("unable to find a good food item.");
+            // couldn't find a food item, so we don't pause because we don't need to stop to eat it
+        }
+        // not hungry! do other stuff!
+        return new PathingCommand(null, PathingCommandType.DEFER);
+    }
+
+    @Override
+    public void onLostControl() {
+        if (this.inGame()) {
             this.JUST_ATE = false;
             mc.options.keyUse.setDown(false);
+            ctx.player().getInventory().selected = lastSlot;
         }
+    }
+
+    @Override
+    public String displayName0() {
+        return "Eat process, using food slot: " + this.findFoodSlot();
+    }
+
+    private boolean inGame() {
+        return ctx.world() != null && ctx.player() != null && mc.gameMode != null;
     }
 
     private int findFoodSlot() {
@@ -82,17 +117,7 @@ public class EatBehavior extends Behavior implements IEatBehavior, Helper {
     }
 
     @Override
-    public void onTick(TickEvent event) {
-        if (Baritone.settings().autoEat.value && this.inGame() && this.isPathing()) {
-            this.executeBehavior();
-        }
-    }
-
-    private boolean inGame() {
-        return ctx.world() != null && ctx.player() != null && mc.gameMode != null;
-    }
-
-    private boolean isPathing() {
-        return this.baritone.getPathingControlManager().activeProcesses().size() > 0;
+    public double priority() {
+        return IEatProcess.super.priority() + 2;
     }
 }

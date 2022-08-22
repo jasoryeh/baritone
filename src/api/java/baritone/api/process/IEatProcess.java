@@ -15,7 +15,7 @@
  * along with Baritone.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package baritone.api.behavior;
+package baritone.api.process;
 
-public interface IEatBehavior extends IBehavior {
+public interface IEatProcess extends IBaritoneSubprocess {
 }

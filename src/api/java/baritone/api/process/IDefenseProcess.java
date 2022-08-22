@@ -17,5 +17,5 @@
 
 package baritone.api.process;
 
-public interface IDefenseProcess extends IBaritoneProcess {
+public interface IDefenseProcess extends IBaritoneSubprocess {
 }

@@ -82,16 +82,16 @@ public interface IBaritone {
     IBuilderProcess getBuilderProcess();
 
     /**
-     * @return The {@link IDefenseBehavior} instance
-     * @see IDefenseBehavior
+     * @return The {@link IDefenseProcess} instance
+     * @see IDefenseProcess
      */
-    IDefenseBehavior getDefenseBehavior();
+    IDefenseProcess getDefenseProcess();
 
     /**
-     * @return The {@link IEatBehavior} instance
-     * @see IEatBehavior
+     * @return The {@link IDefenseProcess} instance
+     * @see IDefenseProcess
      */
-    IEatBehavior getEatBehavior();
+    IEatProcess getEatProcess();
 
     /**
      * @return The {@link IExploreProcess} instance

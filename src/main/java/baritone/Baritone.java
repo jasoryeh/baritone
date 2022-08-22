@@ -22,6 +22,7 @@ import baritone.api.IBaritone;
 import baritone.api.Settings;
 import baritone.api.behavior.*;
 import baritone.api.event.listener.IEventBus;
+import baritone.api.process.*;
 import baritone.api.utils.Helper;
 import baritone.api.utils.IPlayerContext;
 import baritone.behavior.*;
@@ -71,8 +72,6 @@ public class Baritone implements IBaritone {
     private LookBehavior lookBehavior;
     private InventoryBehavior inventoryBehavior;
     private WaypointBehavior waypointBehavior;
-    private DefenseBehavior defenseBehavior;
-    private EatBehavior eatBehavior;
     private InputOverrideHandler inputOverrideHandler;
 
     private FollowProcess followProcess;
@@ -83,6 +82,8 @@ public class Baritone implements IBaritone {
     private ExploreProcess exploreProcess;
     private BackfillProcess backfillProcess;
     private FarmProcess farmProcess;
+    private DefenseProcess defenseProcess;
+    private EatProcess eatProcess;
 
     private PathingControlManager pathingControlManager;
     private SelectionManager selectionManager;
@@ -106,8 +107,6 @@ public class Baritone implements IBaritone {
             inventoryBehavior = new InventoryBehavior(this);
             inputOverrideHandler = new InputOverrideHandler(this);
             waypointBehavior = new WaypointBehavior(this);
-            defenseBehavior = new DefenseBehavior(this);
-            eatBehavior = new EatBehavior(this);
         }
 
         this.pathingControlManager = new PathingControlManager(this);
@@ -120,6 +119,8 @@ public class Baritone implements IBaritone {
             this.pathingControlManager.registerProcess(exploreProcess = new ExploreProcess(this));
             this.pathingControlManager.registerProcess(backfillProcess = new BackfillProcess(this));
             this.pathingControlManager.registerProcess(farmProcess = new FarmProcess(this));
+            this.pathingControlManager.registerProcess(defenseProcess = new DefenseProcess(this));
+            this.pathingControlManager.registerProcess(eatProcess = new EatProcess(this));
         }
 
         this.worldProvider = new WorldProvider();
@@ -162,13 +163,13 @@ public class Baritone implements IBaritone {
     }
 
     @Override
-    public IDefenseBehavior getDefenseBehavior() {
-        return this.defenseBehavior;
+    public IDefenseProcess getDefenseProcess() {
+        return this.defenseProcess;
     }
 
     @Override
-    public IEatBehavior getEatBehavior() {
-        return this.eatBehavior;
+    public IEatProcess getEatProcess() {
+        return this.eatProcess;
     }
 
     @Override

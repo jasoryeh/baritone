@@ -15,74 +15,82 @@
  * along with Baritone.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package baritone.behavior;
+package baritone.process;
 
 import baritone.Baritone;
-import baritone.api.behavior.IDefenseBehavior;
-import baritone.api.event.events.TickEvent;
 import baritone.api.pathing.goals.Goal;
 import baritone.api.pathing.goals.GoalNear;
 import baritone.api.pathing.goals.GoalXZ;
+import baritone.api.process.IBaritoneSubprocess;
+import baritone.api.process.IDefenseProcess;
+import baritone.api.process.PathingCommand;
+import baritone.api.process.PathingCommandType;
 import baritone.api.utils.Helper;
 import baritone.api.utils.Rotation;
 import baritone.api.utils.RotationUtils;
+import baritone.utils.BaritoneProcessHelper;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SwordItem;
+import net.minecraft.world.level.Level;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
-
-public class DefenseBehavior extends Behavior implements IDefenseBehavior, Helper {
-
-    private List<Entity> cache = new ArrayList<>();
+public class DefenseProcess extends BaritoneProcessHelper implements IDefenseProcess {
+    private Set<Entity> cache = new HashSet<>();
     private long tickWait = 0;
 
-    public DefenseBehavior(Baritone baritone) {
+    public DefenseProcess(Baritone baritone) {
         super(baritone);
     }
 
-    private void runBehavior() {
-        if (this.tickWait > 0) {
-            this.tickWait--;
-            return;
-        }
-        if (ctx.player() != null && ctx.world() != null && mc.gameMode != null) {
-            logDebug("Active Defense: " + (Baritone.settings().selfDefense.value && !cache.isEmpty()));
-            logDebug("Gamemode: " + mc.gameMode);
-            logDebug("Hostiles in range: " + cache);
-            logDebug("Attackable hostiles: " + cache.stream().filter(this::attackable).toList());
-        }
-        for (Entity entity : this.cache) {
-            logDebug("...on " + entity);
-            if (this.attackable(entity)) {
-                logDebug("Attacking " + entity);
-                Optional<Rotation> reachable = RotationUtils.reachable(ctx, entity.blockPosition());
-                reachable.ifPresent(r -> {
-                    ctx.player().setYRot(r.getYaw());
-                    ctx.player().setXRot(r.getPitch());
-                });
-                this.switchToSword();
-                ctx.attack(entity);
-            }
-        }
-        this.tickWait = Baritone.settings().selfDefenseAttackDelay.value;
+    @Override
+    public boolean isActive() {
+        this.scanHostiles();
+        return this.inGame() && Baritone.settings().selfDefense.value && !cache.isEmpty();
     }
 
     @Override
-    public void onTick(TickEvent event) {
-        this.scanHostiles();
-        if (Baritone.settings().selfDefense.value && !cache.isEmpty() && this.isPathing()) {
-            this.runBehavior();
+    public PathingCommand onTick(boolean calcFailed, boolean isSafeToCancel) {
+        if (this.tickWait > 0) {
+            this.tickWait--;
+            // well if we are waiting on combat cooldown, it should be safe to switch items
+            return new PathingCommand(null, PathingCommandType.DEFER);
         }
+        LocalPlayer player = ctx.player();
+        Level world = ctx.world();
+        if (player != null && world != null && mc.gameMode != null) {
+            logDebug("Hostiles in range: " + cache);
+        }
+        for (Entity entity : this.cache) {
+            logDebug("Attacking " + entity);
+            Optional<Rotation> reachable = RotationUtils.reachable(ctx, entity.blockPosition());
+            reachable.ifPresent(r -> {
+                player.setYRot(r.getYaw());
+                player.setXRot(r.getPitch());
+            });
+            this.switchToSword();
+            ctx.attack(entity);
+            // ehhhhhh i know this is gonna attack multiple mobs sooo
+            // todo: maybe reset tick wait here, and pause pathing?
+        }
+        this.tickWait = Baritone.settings().selfDefenseAttackDelay.value;
+        return new PathingCommand(null, PathingCommandType.REQUEST_PAUSE);
+    }
+
+    @Override
+    public void onLostControl() {
+        this.cache = new HashSet<>();
+        this.tickWait = 0;
+    }
+
+    @Override
+    public String displayName0() {
+        return "Defending against: " + this.cache;
     }
 
     public Optional<Integer> getSwordSlot() {
@@ -104,13 +112,7 @@ public class DefenseBehavior extends Behavior implements IDefenseBehavior, Helpe
 
     public void switchToSword() {
         Optional<Integer> swordSlot = this.getSwordSlot();
-        if (swordSlot.isPresent()) {
-            ctx.player().getInventory().selected = swordSlot.get();
-        }
-    }
-
-    private boolean attackable(Entity entity) {
-        return true;
+        swordSlot.ifPresent(integer -> ctx.player().getInventory().selected = integer);
     }
 
     private boolean validEntity(Entity entity) {
@@ -140,34 +142,23 @@ public class DefenseBehavior extends Behavior implements IDefenseBehavior, Helpe
     }
 
     private void scanHostiles() {
-        if (!this.scannable()) {
-            this.cache = Collections.emptyList();
-            return;
-        }
-        this.cache = ctx.entitiesStream()
-                .filter(this::validEntity)
-                .filter(this::isHostileTowardsPlayer)
-                .filter(this::inRange)
-                .distinct()
-                .collect(Collectors.toList());
-    }
-
-    private Goal towards(Entity following) {
-        BlockPos pos;
-        if (Baritone.settings().followOffsetDistance.value == 0) {
-            pos = following.blockPosition();
+        if (this.inGame()) {
+            this.cache = ctx.entitiesStream()
+                    .filter(this::validEntity)
+                    .filter(this::isHostileTowardsPlayer)
+                    .filter(this::inRange)
+                    .collect(Collectors.toSet());
         } else {
-            GoalXZ g = GoalXZ.fromDirection(following.position(), Baritone.settings().followOffsetDirection.value, Baritone.settings().followOffsetDistance.value);
-            pos = new BlockPos(g.getX(), following.position().y, g.getZ());
+            this.cache = Collections.emptySet();
         }
-        return new GoalNear(pos, Baritone.settings().followRadius.value);
     }
 
-    private boolean scannable() {
+    private boolean inGame() {
         return ctx.world() != null && ctx.player() != null && mc.gameMode != null;
     }
 
-    private boolean isPathing() {
-        return this.baritone.getPathingControlManager().activeProcesses().size() > 0;
+    @Override
+    public double priority() {
+        return IDefenseProcess.super.priority() + 1;
     }
 }
