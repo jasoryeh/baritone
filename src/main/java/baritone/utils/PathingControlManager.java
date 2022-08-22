@@ -28,6 +28,8 @@ import baritone.api.process.PathingCommandType;
 import baritone.behavior.PathingBehavior;
 import baritone.pathing.path.PathExecutor;
 import java.util.*;
+import java.util.stream.Collectors;
+
 import net.minecraft.core.BlockPos;
 
 public class PathingControlManager implements IPathingControlManager {
@@ -89,7 +91,7 @@ public class PathingControlManager implements IPathingControlManager {
 
     @Override
     public List<IBaritoneProcess> activeProcesses() {
-        return this.active;
+        return this.active.stream().filter(p -> !p.isSubprocess()).collect(Collectors.toList());
     }
 
     public void preTick() {
@@ -188,6 +190,10 @@ public class PathingControlManager implements IPathingControlManager {
         return false;
     }
 
+    @Override
+    public List<IBaritoneProcess> activeSubprocesses() {
+        return this.active.stream().filter(IBaritoneProcess::isSubprocess).collect(Collectors.toList());
+    }
 
     public PathingCommand executeProcesses() {
         for (IBaritoneProcess process : processes) {
@@ -202,10 +208,16 @@ public class PathingControlManager implements IPathingControlManager {
         }
         // ties are broken by which was added to the beginning of the list first
         active.sort(Comparator.comparingDouble(IBaritoneProcess::priority).reversed());
+        int procsActive = this.activeProcesses().size();
+        int subprocsActive = this.activeSubprocesses().size();
 
         Iterator<IBaritoneProcess> iterator = active.iterator();
         while (iterator.hasNext()) {
             IBaritoneProcess proc = iterator.next();
+
+            if (proc.isSubprocess() && procsActive <= 0) {
+                continue;
+            }
 
             PathingCommand exec = proc.onTick(Objects.equals(proc, inControlLastTick) && baritone.getPathingBehavior().calcFailedLastTick(), baritone.getPathingBehavior().isSafeToCancel());
             if (exec == null) {

@@ -50,4 +50,6 @@ public interface IPathingControlManager {
     Set<IBaritoneProcess> processes();
 
     List<IBaritoneProcess> activeProcesses();
+
+    List<IBaritoneProcess> activeSubprocesses();
 }

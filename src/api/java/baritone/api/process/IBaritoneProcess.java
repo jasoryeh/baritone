@@ -46,6 +46,14 @@ public interface IBaritoneProcess {
     double DEFAULT_PRIORITY = -1;
 
     /**
+     * Subprocesses are processes that can interrupt other processes, but only run while others are running.
+     * By default, this is false.
+     */
+    default boolean isSubprocess() {
+        return false;
+    }
+
+    /**
      * Would this process like to be in control?
      *
      * @return Whether or not this process would like to be in contorl.
@@ -77,7 +85,9 @@ public interface IBaritoneProcess {
      *
      * @return Whether or not if this control is temporary
      */
-    boolean isTemporary();
+    default boolean isTemporary() {
+        return false;
+    }
 
     /**
      * Called if {@link #isActive} returned {@code true}, but another non-temporary
