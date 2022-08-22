@@ -18,6 +18,7 @@
 package baritone.behavior;
 
 import baritone.Baritone;
+import baritone.api.behavior.IWaypointBehavior;
 import baritone.api.cache.IWaypoint;
 import baritone.api.cache.Waypoint;
 import baritone.api.event.events.BlockInteractEvent;
@@ -37,7 +38,7 @@ import java.util.Set;
 
 import static baritone.api.command.IBaritoneChatControl.FORCE_COMMAND_PREFIX;
 
-public class WaypointBehavior extends Behavior {
+public class WaypointBehavior extends Behavior implements IWaypointBehavior {
 
 
     public WaypointBehavior(Baritone baritone) {

@@ -19,6 +19,7 @@ package baritone.behavior;
 
 import baritone.Baritone;
 import baritone.api.BaritoneAPI;
+import baritone.api.behavior.IInventoryBehavior;
 import baritone.api.event.events.TickEvent;
 import baritone.utils.ToolSet;
 import net.minecraft.client.player.LocalPlayer;
@@ -43,7 +44,7 @@ import java.util.OptionalInt;
 import java.util.Random;
 import java.util.function.Predicate;
 
-public final class InventoryBehavior extends Behavior {
+public final class InventoryBehavior extends Behavior implements IInventoryBehavior {
 
     public InventoryBehavior(Baritone baritone) {
         super(baritone);
