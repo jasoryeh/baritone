@@ -1273,6 +1273,21 @@ public final class Settings {
     public final Setting<Boolean> notificationOnMineFail = new Setting<>(true);
 
     /**
+     * Should baritone attempt to defend itself?
+     */
+    public final Setting<Boolean> selfDefense = new Setting<>(false);
+
+    /**
+     * How close should mobs get before it defends against it?
+     */
+    public final Setting<Integer> selfDefenseRadius = new Setting<>(8);
+
+    /**
+     * How many ticks do we wait before attacks?
+     */
+    public final Setting<Long> selfDefenseAttackDelay = new Setting<>(20L);
+
+    /**
      * A map of lowercase setting field names to their respective setting
      */
     public final Map<String, Setting<?>> byLowerName;

@@ -20,7 +20,9 @@ package baritone.api.pathing.calc;
 import baritone.api.process.IBaritoneProcess;
 import baritone.api.process.PathingCommand;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author leijurv
@@ -44,4 +46,8 @@ public interface IPathingControlManager {
      * @return The most recent pathing command executed
      */
     Optional<PathingCommand> mostRecentCommand();
+
+    Set<IBaritoneProcess> processes();
+
+    List<IBaritoneProcess> activeProcesses();
 }

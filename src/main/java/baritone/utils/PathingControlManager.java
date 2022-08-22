@@ -82,6 +82,16 @@ public class PathingControlManager implements IPathingControlManager {
         return Optional.ofNullable(command);
     }
 
+    @Override
+    public Set<IBaritoneProcess> processes() {
+        return this.processes;
+    }
+
+    @Override
+    public List<IBaritoneProcess> activeProcesses() {
+        return this.active;
+    }
+
     public void preTick() {
         inControlLastTick = inControlThisTick;
         inControlThisTick = null;
@@ -213,4 +223,6 @@ public class PathingControlManager implements IPathingControlManager {
         }
         return null;
     }
+
+
 }

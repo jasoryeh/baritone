@@ -76,6 +76,12 @@ public interface IBaritone {
     IBuilderProcess getBuilderProcess();
 
     /**
+     * @return The {@link IDefenseBehavior} instance
+     * @see IDefenseBehavior
+     */
+    IDefenseBehavior getDefenseBehavior();
+
+    /**
      * @return The {@link IExploreProcess} instance
      * @see IExploreProcess
      */
