@@ -76,10 +76,12 @@ public class RoutineCommand extends Command {
 
     @Override
     public void execute(String label, IArgConsumer args) throws CommandException {
-        if (label.equalsIgnoreCase("miner")) {
+        if (label.equalsIgnoreCase("ores")) {
             this.mineCollection(ORES);
-        } else {
+        } else if(label.equalsIgnoreCase("logs")) {
             this.mineCollection(LOGS);
+        } else {
+            logDirect("unknown routine");
         }
     }
 
