@@ -23,7 +23,9 @@ import baritone.api.utils.Helper;
 import baritone.api.utils.IPlayerContext;
 import baritone.api.utils.IPlayerController;
 import baritone.api.utils.RayTraceUtils;
+import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
 
@@ -60,5 +62,14 @@ public enum PrimaryPlayerContext implements IPlayerContext, Helper {
     @Override
     public HitResult objectMouseOver() {
         return RayTraceUtils.rayTraceTowards(player(), playerRotations(), playerController().getBlockReachDistance());
+    }
+
+    @Override
+    public void attack(Entity entity) {
+        MultiPlayerGameMode gameMode = mc.gameMode;
+        LocalPlayer player = player();
+        if (gameMode != null && player != null) {
+            gameMode.attack(player, entity);
+        }
     }
 }

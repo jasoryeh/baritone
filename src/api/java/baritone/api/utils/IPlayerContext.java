@@ -109,4 +109,11 @@ public interface IPlayerContext {
     default boolean isLookingAt(BlockPos pos) {
         return getSelectedBlock().equals(Optional.of(pos));
     }
+
+    /**
+     * Make player attempt to attack an entity
+     * @param entity The entity to attack
+     */
+    void attack(Entity entity);
+
 }
