@@ -18,14 +18,9 @@
 package baritone.process;
 
 import baritone.Baritone;
-import baritone.api.pathing.goals.Goal;
-import baritone.api.pathing.goals.GoalNear;
-import baritone.api.pathing.goals.GoalXZ;
-import baritone.api.process.IBaritoneSubprocess;
 import baritone.api.process.IDefenseProcess;
 import baritone.api.process.PathingCommand;
 import baritone.api.process.PathingCommandType;
-import baritone.api.utils.Helper;
 import baritone.api.utils.Rotation;
 import baritone.api.utils.RotationUtils;
 import baritone.utils.BaritoneProcessHelper;
@@ -59,7 +54,12 @@ public class DefenseProcess extends BaritoneProcessHelper implements IDefensePro
         if (this.tickWait > 0) {
             this.tickWait--;
             // well if we are waiting on combat cooldown, it should be safe to switch items
-            return new PathingCommand(null, PathingCommandType.DEFER);
+            if (this.cache.size() > 0) {
+                // defer if no more hostiles nearby, otherwise keep attacking
+                return new PathingCommand(null, PathingCommandType.DEFER);
+            } else {
+                return new PathingCommand(null, PathingCommandType.REQUEST_PAUSE);
+            }
         }
         LocalPlayer player = ctx.player();
         Level world = ctx.world();
@@ -75,11 +75,10 @@ public class DefenseProcess extends BaritoneProcessHelper implements IDefensePro
             });
             this.switchToSword();
             ctx.attack(entity);
-            // ehhhhhh i know this is gonna attack multiple mobs sooo
-            // todo: maybe reset tick wait here, and pause pathing?
+            this.tickWait = Baritone.settings().selfDefenseAttackDelay.value;
+            return new PathingCommand(null, PathingCommandType.REQUEST_PAUSE);
         }
-        this.tickWait = Baritone.settings().selfDefenseAttackDelay.value;
-        return new PathingCommand(null, PathingCommandType.REQUEST_PAUSE);
+        return new PathingCommand(null, PathingCommandType.DEFER);
     }
 
     @Override
