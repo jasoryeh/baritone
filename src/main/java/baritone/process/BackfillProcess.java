@@ -18,6 +18,7 @@
 package baritone.process;
 
 import baritone.Baritone;
+import baritone.api.process.IBackfillProcess;
 import baritone.api.process.PathingCommand;
 import baritone.api.process.PathingCommandType;
 import baritone.api.utils.input.Input;
@@ -33,7 +34,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.EmptyLevelChunk;
 
-public final class BackfillProcess extends BaritoneProcessHelper {
+public final class BackfillProcess extends BaritoneProcessHelper implements IBackfillProcess {
 
     public HashMap<BlockPos, BlockState> blocksToReplace = new HashMap<>();
 

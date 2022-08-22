@@ -142,6 +142,11 @@ public class Baritone implements IBaritone {
     }
 
     @Override
+    public IBackfillProcess getBackfillProcess() {
+        return this.backfillProcess;
+    }
+
+    @Override
     public CustomGoalProcess getCustomGoalProcess() {
         return this.customGoalProcess;
     }

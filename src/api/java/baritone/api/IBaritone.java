@@ -58,6 +58,12 @@ public interface IBaritone {
     IWaypointBehavior getWaypointBehavior();
 
     /**
+     * @return The {@link IBackfillProcess} instance
+     * @see IBackfillProcess
+     */
+    IBackfillProcess getBackfillProcess();
+
+    /**
      * @return The {@link IFollowProcess} instance
      * @see IFollowProcess
      */
