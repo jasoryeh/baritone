@@ -146,8 +146,8 @@ public class FollowCommand extends Command {
     private enum FollowGroup {
         ENTITIES(LivingEntity.class::isInstance),
         PLAYERS(Player.class::isInstance),
-        FRIENDLY(entity -> entity instanceof Enemy),
-        HOSTILE(FRIENDLY.filter.negate());
+        HOSTILE(entity -> entity instanceof Enemy),
+        FRIENDLY(HOSTILE.filter.negate());
         final Predicate<Entity> filter;
 
         FollowGroup(Predicate<Entity> filter) {
