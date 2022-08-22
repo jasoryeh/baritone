@@ -43,11 +43,10 @@ public class EatBehavior extends Behavior implements IEatBehavior, Helper {
             Inventory inventory = player.getInventory();
             int foodSlot = this.findFoodSlot();
             if (foodSlot == -1) {
-                logDebug("unable to find a good food item.");
+                //logDebug("unable to find a good food item.");
                 return;
             }
             ItemStack foodStack = inventory.getItem(foodSlot);
-            logDebug("eating " + foodStack);
             player.getInventory().selected = foodSlot;
             mc.options.keyUse.setDown(true);
             this.JUST_ATE = true;
@@ -67,16 +66,13 @@ public class EatBehavior extends Behavior implements IEatBehavior, Helper {
                 if (item != null) {
                     FoodProperties foodProperties = item.getFoodProperties();
                     if (foodProperties != null) {
-                        logDebug("found food: " + itemStack);
                         FoodData foodData = player.getFoodData();
                         if (player.getHealth() != player.getMaxHealth() && foodData.needsFood()) {
-                            logDebug("eating because player is low on health: " + itemStack);
+                            logDebug("eating because player is low on health: " + itemStack + "; nutrition: " + item.getFoodProperties().getNutrition() + "; sat: " + item.getFoodProperties().getSaturationModifier());
                             return i;
                         } else if (foodData.needsFood() && (foodData.getFoodLevel() + foodProperties.getNutrition()) <= FoodConstants.MAX_FOOD) {
-                            logDebug("eating because player needs food and an optimal food exists: " + itemStack);
+                            logDebug("eating because player needs food and wont waste it: " + itemStack + "; nutrition: " + item.getFoodProperties().getNutrition() + "; sat: " + item.getFoodProperties().getSaturationModifier());
                             return i;
-                        } else {
-                            logDebug("not eating: " + itemStack);
                         }
                     }
                 }
