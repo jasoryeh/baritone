@@ -82,6 +82,12 @@ public interface IBaritone {
     IDefenseBehavior getDefenseBehavior();
 
     /**
+     * @return The {@link IEatBehavior} instance
+     * @see IEatBehavior
+     */
+    IEatBehavior getEatBehavior();
+
+    /**
      * @return The {@link IExploreProcess} instance
      * @see IExploreProcess
      */

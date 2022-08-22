@@ -72,6 +72,7 @@ public class Baritone implements IBaritone {
     private InventoryBehavior inventoryBehavior;
     private WaypointBehavior waypointBehavior;
     private DefenseBehavior defenseBehavior;
+    private EatBehavior eatBehavior;
     private InputOverrideHandler inputOverrideHandler;
 
     private FollowProcess followProcess;
@@ -106,6 +107,7 @@ public class Baritone implements IBaritone {
             inputOverrideHandler = new InputOverrideHandler(this);
             waypointBehavior = new WaypointBehavior(this);
             defenseBehavior = new DefenseBehavior(this);
+            eatBehavior = new EatBehavior(this);
         }
 
         this.pathingControlManager = new PathingControlManager(this);
@@ -157,6 +159,11 @@ public class Baritone implements IBaritone {
     @Override
     public IDefenseBehavior getDefenseBehavior() {
         return this.defenseBehavior;
+    }
+
+    @Override
+    public IEatBehavior getEatBehavior() {
+        return this.eatBehavior;
     }
 
     @Override

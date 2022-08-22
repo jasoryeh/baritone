@@ -1288,6 +1288,13 @@ public final class Settings {
     public final Setting<Long> selfDefenseAttackDelay = new Setting<>(20L);
 
     /**
+     * Should baritone attempt to maintain a healthy diet and keep itself full while pathing?
+     *
+     * This will only eat if there's food in the hotbar.
+     */
+    public final Setting<Boolean> autoEat = new Setting<>(false);
+
+    /**
      * A map of lowercase setting field names to their respective setting
      */
     public final Map<String, Setting<?>> byLowerName;
