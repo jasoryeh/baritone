@@ -17,8 +17,7 @@
 
 package baritone.api;
 
-import baritone.api.behavior.ILookBehavior;
-import baritone.api.behavior.IPathingBehavior;
+import baritone.api.behavior.*;
 import baritone.api.cache.IWorldProvider;
 import baritone.api.command.manager.ICommandManager;
 import baritone.api.event.listener.IEventBus;
@@ -45,6 +44,18 @@ public interface IBaritone {
      * @see ILookBehavior
      */
     ILookBehavior getLookBehavior();
+
+    /**
+     * @return The {@link IInventoryBehavior} instance
+     * @see IInventoryBehavior
+     */
+    IInventoryBehavior getInventoryBehavior();
+
+    /**
+     * @return The {@link IWaypointBehavior} instance
+     * @see IWaypointBehavior
+     */
+    IWaypointBehavior getWaypointBehavior();
 
     /**
      * @return The {@link IFollowProcess} instance

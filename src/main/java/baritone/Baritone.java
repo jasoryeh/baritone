@@ -20,6 +20,7 @@ package baritone;
 import baritone.api.BaritoneAPI;
 import baritone.api.IBaritone;
 import baritone.api.Settings;
+import baritone.api.behavior.*;
 import baritone.api.event.listener.IEventBus;
 import baritone.api.utils.Helper;
 import baritone.api.utils.IPlayerContext;
@@ -161,8 +162,14 @@ public class Baritone implements IBaritone {
         return this.builderProcess;
     }
 
+    @Override
     public InventoryBehavior getInventoryBehavior() {
         return this.inventoryBehavior;
+    }
+
+    @Override
+    public IWaypointBehavior getWaypointBehavior() {
+        return this.waypointBehavior;
     }
 
     @Override
@@ -170,6 +177,7 @@ public class Baritone implements IBaritone {
         return this.lookBehavior;
     }
 
+    @Override
     public ExploreProcess getExploreProcess() {
         return this.exploreProcess;
     }
@@ -179,6 +187,7 @@ public class Baritone implements IBaritone {
         return this.mineProcess;
     }
 
+    @Override
     public FarmProcess getFarmProcess() {
         return this.farmProcess;
     }
